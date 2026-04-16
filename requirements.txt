@@ -1,5 +1,4 @@
 anthropic==0.25.0
-python-notion-client==2.2.1
 feedparser==6.0.10
 PyYAML==6.0
 requests==2.31.0

@@ -8,9 +8,13 @@ on:
 jobs:
   discover-and-curate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -34,4 +38,14 @@ jobs:
           git config --global user.email "actions@github.com"
           git add obsidian_notes/
           git diff --staged --quiet || git commit -m "📚 Weekly digest $(date +'%Y-%m-%d')"
-          git push
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log completion
+        if: success()
+        run: echo "✅ Pipeline run completed successfully"
+
+      - name: Log failure
+        if: failure()
+        run: echo "❌ Pipeline run failed - check logs above"

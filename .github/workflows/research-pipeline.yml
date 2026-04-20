@@ -1,13 +1,37 @@
-- name: Run discovery and curation
-  env:
-    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-    NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
-  run: python main.py
+name: Research Pipeline - Weekly Discovery
 
-- name: Commit Obsidian notes back to repo
-  run: |
-    git config --global user.name "journal-digest-bot"
-    git config --global user.email "actions@github.com"
-    git add obsidian_notes/
-    git diff --staged --quiet || git commit -m "📚 Weekly digest $(date +'%Y-%m-%d')"
-    git push
+on:
+  schedule:
+    - cron: '0 8 * * 0'
+  workflow_dispatch:
+
+jobs:
+  discover-and-curate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run discovery and curation
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+        run: python main.py
+
+      - name: Commit Obsidian notes back to repo
+        run: |
+          git config --global user.name "journal-digest-bot"
+          git config --global user.email "actions@github.com"
+          git add obsidian_notes/
+          git diff --staged --quiet || git commit -m "📚 Weekly digest $(date +'%Y-%m-%d')"
+          git push

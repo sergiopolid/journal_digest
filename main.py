@@ -13,7 +13,7 @@ import re
 
 # Configuration
 notion_api_key = os.environ.get('NOTION_API_KEY')
-notion_db_id = "34482b8a2d8f8040b027c1c0b0202a68"
+notion_db_id = "1e900b67c75142a9b06da4e5b512aa38"
 anthropic_key = os.environ.get('ANTHROPIC_API_KEY')
 
 anthropic_client = Anthropic(api_key=anthropic_key)

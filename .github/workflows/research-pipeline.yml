@@ -1,41 +1,13 @@
-name: Research Pipeline - Weekly Discovery
+- name: Run discovery and curation
+  env:
+    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+  run: python main.py
 
-on:
-  schedule:
-    - cron: '0 8 * * 0'
-  workflow_dispatch:
-
-jobs:
-  discover-and-curate:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      
-      - name: Run discovery and curation
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
-          ZOTERO_API_KEY: ${{ secrets.ZOTERO_API_KEY }}
-          ZOTERO_USER_ID: ${{ secrets.ZOTERO_USER_ID }}
-          OBSIDIAN_VAULT_PATH: ${{ secrets.OBSIDIAN_VAULT_PATH }}
-          YOUR_EMAIL: ${{ secrets.YOUR_EMAIL }}
-        run: python main.py
-      
-      - name: Log completion
-        if: success()
-        run: echo "✅ Pipeline run completed successfully"
-      
-      - name: Log failure
-        if: failure()
-        run: echo "❌ Pipeline run failed - check logs above"
+- name: Commit Obsidian notes back to repo
+  run: |
+    git config --global user.name "journal-digest-bot"
+    git config --global user.email "actions@github.com"
+    git add obsidian_notes/
+    git diff --staged --quiet || git commit -m "📚 Weekly digest $(date +'%Y-%m-%d')"
+    git push
